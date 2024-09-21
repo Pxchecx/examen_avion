@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "13260836604",
+    "project_id": "examenavion",
+    "storage_bucket": "examenavion.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13260836604:android:c2a5502f492db0afba1179",
+        "android_client_info": {
+          "package_name": "com.avion.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyZRvgBTEvgKo7loIEZf4uQaWNEV4dsBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
