@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/ticket_provider.dart';
-import 'ticket_form_screen.dart';
+import 'package:provider/provider.dart'; 
+import '../screens/ticket_form_screen.dart'; 
+import '../providers/ticket_provider.dart'; 
 
-class TicketListScreen extends StatelessWidget {
-  const TicketListScreen({super.key});
+
+class TicketListScreen extends StatefulWidget {
+  @override
+  _TicketListScreenState createState() => _TicketListScreenState();
+}
+
+class _TicketListScreenState extends State<TicketListScreen> {
+  @override
+  void initState() {
+    super.initState();
+  
+    Provider.of<TicketProvider>(context, listen: false).fetchTickets();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,46 +23,43 @@ class TicketListScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tickets'),
+        title: Text('Tickets'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => TicketFormScreen()));
             },
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: ticketProvider.fetchTickets(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return ListView.builder(
-            itemCount: ticketProvider.tickets.length,
-            itemBuilder: (context, index) {
-              final ticket = ticketProvider.tickets[index];
-              return ListTile(
-                title: Text(ticket.vuelo),
-                subtitle: Text('${ticket.aerolinea} - ${ticket.origen} a ${ticket.destino}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => ticketProvider.deleteTicket(ticket.id),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TicketFormScreen(ticket: ticket),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
+      body: ticketProvider.tickets.isEmpty
+          ? Center(child: CircularProgressIndicator()) 
+          : ListView.builder(
+              itemCount: ticketProvider.tickets.length,
+              itemBuilder: (context, index) {
+                final ticket = ticketProvider.tickets[index];
+                return ListTile(
+                  title: Text(ticket.vuelo),
+                  subtitle: Text('${ticket.aerolinea} - ${ticket.origen} a ${ticket.destino}'),
+                 trailing: IconButton(
+  icon: Icon(Icons.delete),
+  onPressed: ticket.id != null 
+    ? () => ticketProvider.deleteTicket(ticket.id!) 
+    : null, 
+),
+
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TicketFormScreen(ticket: ticket),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }

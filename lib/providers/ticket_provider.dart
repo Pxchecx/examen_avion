@@ -1,30 +1,60 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/ticket.dart';
+
+
 
 class TicketProvider with ChangeNotifier {
   List<Ticket> _tickets = [];
 
   List<Ticket> get tickets => _tickets;
 
-  Future<void> fetchTickets() async {
-    final snapshot = await FirebaseFirestore.instance.collection('TicketAvion').get();
+ Future<void> fetchTickets() async {
+  print('Fetching tickets...');  
+  try {
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('TicketAvion').get();
+    print('Tickets fetched: ${snapshot.size}');  
     _tickets = snapshot.docs.map((doc) => Ticket.fromDocumentSnapshot(doc)).toList();
     notifyListeners();
+  } catch (error) {
+    print('Error fetching tickets: $error');
   }
+}
+
 
   Future<void> addTicket(Ticket ticket) async {
-    await FirebaseFirestore.instance.collection('TicketAvion').add(ticket.toMap());
-    fetchTickets(); // Actualiza la lista después de agregar
+  try {
+ 
+    final docRef = await FirebaseFirestore.instance.collection('TicketAvion').add(ticket.toMap());
+    ticket.id = docRef.id;  
+    _tickets.add(ticket);
+    notifyListeners();
+  } catch (error) {
+    print('Error adding ticket: $error');
   }
+}
+
 
   Future<void> updateTicket(Ticket ticket) async {
-    await FirebaseFirestore.instance.collection('TicketAvion').doc(ticket.id).update(ticket.toMap());
-    fetchTickets(); // Actualiza la lista después de actualizar
+    try {
+      await FirebaseFirestore.instance.collection('TicketAvion').doc(ticket.id).update(ticket.toMap());
+      final index = _tickets.indexWhere((t) => t.id == ticket.id);
+      if (index != -1) {
+        _tickets[index] = ticket; 
+        notifyListeners();
+      }
+    } catch (error) {
+      print('Error updating ticket: $error');
+    }
   }
 
   Future<void> deleteTicket(String id) async {
-    await FirebaseFirestore.instance.collection('TicketAvion').doc(id).delete();
-    fetchTickets(); // Actualiza la lista después de eliminar
+    try {
+      await FirebaseFirestore.instance.collection('TicketAvion').doc(id).delete();
+      _tickets.removeWhere((ticket) => ticket.id == id);
+      notifyListeners();
+    } catch (error) {
+      print('Error deleting ticket: $error');
+    }
   }
 }
